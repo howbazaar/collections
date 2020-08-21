@@ -1,3 +1,6 @@
+github.com/howbazaar/checkers v0.0.0-20200820054500-45c2162a3e86 h1:0mVZ5BErygeemaC3r5Boz4GghDMIyU9nJV35KGfGIe8=
+github.com/howbazaar/checkers v0.0.0-20200820055119-2fe1e2aa2dc7 h1:MtVQGtDUC/mSwKRpZ9ImF1yp28Y5NSc5nRMGnkAlu+w=
+github.com/howbazaar/checkers v0.0.0-20200820055119-2fe1e2aa2dc7/go.mod h1:qdxuTXARaAyzsIFpEOB9N9F9/eWxXWbaaMSvW2A/5Dc=
 github.com/juju/errors v0.0.0-20150916125642-1b5e39b83d18 h1:Sem5Flzxj8ZdAgY2wfHBUlOYyP4wrpIfM8IZgANNGh8=
 github.com/juju/errors v0.0.0-20150916125642-1b5e39b83d18/go.mod h1:W54LbzXuIE0boCoNJfwqpmkKJ1O4TCTZMetAt6jGk7Q=
 github.com/juju/loggo v0.0.0-20170605014607-8232ab8918d9 h1:Y+lzErDTURqeXqlqYi4YBYbDd7ycU74gW1ADt57/bgY=
