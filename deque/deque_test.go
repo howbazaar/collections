@@ -13,42 +13,25 @@ import (
 )
 
 type suite struct {
-	*tc.Suite
+	tc.Test
 	deque *deque.Deque
 }
 
 func TestDeque(t *testing.T) {
-	s := &suite{}
-	s.Suite = tc.NewSuite(t, s.SetUpTest)
-	// TODO: support auto registration of subtests
-	s.Run("Init", s.TestInit)
-	s.Run("StackBack", s.TestStackBack)
-	s.Run("StackFront", s.TestStackFront)
-	s.Run("QueueFromFront", s.TestQueueFromFront)
-	s.Run("QueueFromBack", s.TestQueueFromBack)
-	s.Run("FrontEmpty", s.TestFrontEmpty)
-	s.Run("FrontValue", s.TestFrontValue)
-	s.Run("FrontBack", s.TestFrontBack)
-	s.Run("MaxLenFront", s.TestMaxLenFront)
-	s.Run("MaxLenBack", s.TestMaxLenBack)
-	s.Run("BlockAllocation", s.TestBlockAllocation)
-	s.Run("Iter", s.TestIter)
-	s.Run("IterEmpty", s.TestIterEmpty)
-	s.Run("IterOverBlocksBack", s.TestIterOverBlocksBack)
-	s.Run("IterOverBlocksFront", s.TestIterOverBlocksFront)
+	tc.RunSuite(t, &suite{})
 }
 
 const testLen = 1000
 
-func (s *suite) SetUpTest(*testing.T) {
+func (s *suite) SetUpTest() {
 	s.deque = deque.New()
 }
 
-func (s *suite) TestInit(t *testing.T) {
+func (s *suite) TestInit() {
 	s.checkEmpty()
 }
 
-func (s *suite) TestStackBack(t *testing.T) {
+func (s *suite) TestStackBack() {
 	// Push many values on to the back.
 	for i := 0; i < testLen; i++ {
 		s.Assert(s.deque.Len(), tc.Equals, i)
@@ -66,7 +49,7 @@ func (s *suite) TestStackBack(t *testing.T) {
 	s.checkEmpty()
 }
 
-func (s *suite) TestStackFront(t *testing.T) {
+func (s *suite) TestStackFront() {
 	// Push many values on to the front.
 	for i := 0; i < testLen; i++ {
 		s.Assert(s.deque.Len(), tc.Equals, i)
@@ -84,7 +67,7 @@ func (s *suite) TestStackFront(t *testing.T) {
 	s.checkEmpty()
 }
 
-func (s *suite) TestQueueFromFront(t *testing.T) {
+func (s *suite) TestQueueFromFront() {
 	// Push many values on to the back.
 	for i := 0; i < testLen; i++ {
 		s.deque.PushBack(i)
@@ -100,7 +83,7 @@ func (s *suite) TestQueueFromFront(t *testing.T) {
 	s.checkEmpty()
 }
 
-func (s *suite) TestQueueFromBack(t *testing.T) {
+func (s *suite) TestQueueFromBack() {
 	// Push many values on to the front.
 	for i := 0; i < testLen; i++ {
 		s.deque.PushFront(i)
@@ -116,13 +99,13 @@ func (s *suite) TestQueueFromBack(t *testing.T) {
 	s.checkEmpty()
 }
 
-func (s *suite) TestFrontEmpty(t *testing.T) {
+func (s *suite) TestFrontEmpty() {
 	v, ok := s.deque.Front()
 	s.Assert(ok, tc.IsFalse)
 	s.Assert(v, tc.IsNil)
 }
 
-func (s *suite) TestFrontValue(t *testing.T) {
+func (s *suite) TestFrontValue() {
 	s.deque.PushFront(42)
 	v, ok := s.deque.Front()
 	s.Assert(ok, tc.IsTrue)
@@ -131,7 +114,7 @@ func (s *suite) TestFrontValue(t *testing.T) {
 	s.Assert(s.deque.Len(), tc.Equals, 1)
 }
 
-func (s *suite) TestFrontBack(t *testing.T) {
+func (s *suite) TestFrontBack() {
 	// Populate from the front and back.
 	for i := 0; i < testLen; i++ {
 		s.Assert(s.deque.Len(), tc.Equals, i*2)
@@ -175,7 +158,7 @@ func (s *suite) TestFrontBack(t *testing.T) {
 	s.checkEmpty()
 }
 
-func (s *suite) TestMaxLenFront(t *testing.T) {
+func (s *suite) TestMaxLenFront() {
 	const max = 5
 	d := deque.NewWithMaxLen(max)
 
@@ -190,7 +173,7 @@ func (s *suite) TestMaxLenFront(t *testing.T) {
 	s.Assert(v.(int), tc.Equals, 2)
 }
 
-func (s *suite) TestMaxLenBack(t *testing.T) {
+func (s *suite) TestMaxLenBack() {
 	const max = 5
 	d := deque.NewWithMaxLen(max)
 
@@ -205,7 +188,7 @@ func (s *suite) TestMaxLenBack(t *testing.T) {
 	s.Assert(v.(int), tc.Equals, 3)
 }
 
-func (s *suite) TestBlockAllocation(t *testing.T) {
+func (s *suite) TestBlockAllocation() {
 	// This test confirms that the Deque allocates and deallocates
 	// blocks as expected.
 
@@ -316,18 +299,18 @@ func iterToSlice(iter deque.Iterator) []string {
 	return result
 }
 
-func (s *suite) TestIterEmpty(t *testing.T) {
+func (s *suite) TestIterEmpty() {
 	s.Assert(iterToSlice(s.deque.Iterator()), tc.HasLen, 0)
 }
 
-func (s *suite) TestIter(t *testing.T) {
+func (s *suite) TestIter() {
 	s.deque.PushFront("second")
 	s.deque.PushBack("third")
 	s.deque.PushFront("first")
 	s.Assert(iterToSlice(s.deque.Iterator()), tc.DeepEquals, []string{"first", "second", "third"})
 }
 
-func (s *suite) TestIterOverBlocksBack(t *testing.T) {
+func (s *suite) TestIterOverBlocksBack() {
 	for i := 0; i < testLen; i++ {
 		s.deque.PushBack(i)
 	}
@@ -342,7 +325,7 @@ func (s *suite) TestIterOverBlocksBack(t *testing.T) {
 	s.Assert(expect, tc.Equals, testLen)
 }
 
-func (s *suite) TestIterOverBlocksFront(t *testing.T) {
+func (s *suite) TestIterOverBlocksFront() {
 	for i := 0; i < testLen; i++ {
 		s.deque.PushFront(i)
 	}
@@ -357,7 +340,7 @@ func (s *suite) TestIterOverBlocksFront(t *testing.T) {
 	s.Assert(expect, tc.Equals, -1)
 }
 
-func (s *suite) TestWrongTypePanics(t *testing.T) {
+func (s *suite) TestWrongTypePanics() {
 	// Use an int in the deque, and try to get strings out using the iterToSlice method.
 	s.deque.PushFront(14)
 
