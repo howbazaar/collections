@@ -344,14 +344,13 @@ func (s *suite) TestWrongTypePanics() {
 	// Use an int in the deque, and try to get strings out using the iterToSlice method.
 	s.deque.PushFront(14)
 
-	// TODO: impl panic matches
-	// s.Assert(func() {
-	// 	iterToSlice(s.deque.Iterator())
-	// }, gc.PanicMatches, "reflect.Set: value of type int is not assignable to type string")
+	s.Assert(func() {
+		iterToSlice(s.deque.Iterator())
+	}, tc.PanicMatches, "reflect.Set: value of type int is not assignable to type string")
 
-	// s.Assert(func() {
-	// 	iter := s.deque.Iterator()
-	// 	var i int
-	// 	iter.Next(i)
-	// }, gc.PanicMatches, "value is not a pointer")
+	s.Assert(func() {
+		iter := s.deque.Iterator()
+		var i int
+		iter.Next(i)
+	}, tc.PanicMatches, "value is not a pointer")
 }

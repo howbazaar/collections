@@ -5,132 +5,133 @@ package set_test
 
 import (
 	"sort"
+	"testing"
 
-	"github.com/juju/testing"
-	gc "gopkg.in/check.v1"
+	tc "github.com/howbazaar/checkers"
 
 	"github.com/juju/collections/set"
 )
 
 type stringSetSuite struct {
-	testing.IsolationSuite
+	tc.Test
 }
 
-var _ = gc.Suite(stringSetSuite{})
+func TestStringSet(t *testing.T) {
+	tc.RunSuite(t, &stringSetSuite{})
+}
 
 // Helper methods for the tests.
-func AssertValues(c *gc.C, s set.Strings, expected ...string) {
-	values := s.Values()
+func (s *stringSetSuite) AssertValues(set set.Strings, expected ...string) {
+	values := set.Values()
 	// Expect an empty slice, not a nil slice for values.
 	if expected == nil {
 		expected = []string{}
 	}
 	sort.Strings(expected)
 	sort.Strings(values)
-	c.Assert(values, gc.DeepEquals, expected)
-	c.Assert(s.Size(), gc.Equals, len(expected))
+	s.Assert(values, tc.DeepEquals, expected)
+	s.Assert(set.Size(), tc.Equals, len(expected))
 	// Check the sorted values too.
-	sorted := s.SortedValues()
-	c.Assert(sorted, gc.DeepEquals, expected)
+	sorted := set.SortedValues()
+	s.Assert(sorted, tc.DeepEquals, expected)
 }
 
 // Actual tests start here.
 
-func (stringSetSuite) TestEmpty(c *gc.C) {
-	s := set.NewStrings()
-	AssertValues(c, s)
+func (s *stringSetSuite) TestEmpty() {
+	s.AssertValues(set.NewStrings())
 }
 
-func (stringSetSuite) TestInitialValues(c *gc.C) {
+func (s *stringSetSuite) TestInitialValues() {
 	values := []string{"foo", "bar", "baz"}
-	s := set.NewStrings(values...)
-	AssertValues(c, s, values...)
+	v := set.NewStrings(values...)
+	s.AssertValues(v, values...)
 }
 
-func (stringSetSuite) TestSize(c *gc.C) {
+func (s *stringSetSuite) TestSize() {
 	// Empty sets are empty.
-	s := set.NewStrings()
-	c.Assert(s.Size(), gc.Equals, 0)
+	v := set.NewStrings()
+	s.Assert(v.Size(), tc.Equals, 0)
 
 	// Size returns number of unique values.
-	s = set.NewStrings("foo", "foo", "bar")
-	c.Assert(s.Size(), gc.Equals, 2)
+	v = set.NewStrings("foo", "foo", "bar")
+	s.Assert(v.Size(), tc.Equals, 2)
 }
 
-func (stringSetSuite) TestIsEmpty(c *gc.C) {
+func (s *stringSetSuite) TestIsEmpty() {
 	// Empty sets are empty.
-	s := set.NewStrings()
-	c.Assert(s.IsEmpty(), gc.Equals, true)
+	v := set.NewStrings()
+	s.Assert(v.IsEmpty(), tc.IsTrue)
 
 	// Non-empty sets are not empty.
-	s = set.NewStrings("foo")
-	c.Assert(s.IsEmpty(), gc.Equals, false)
+	v = set.NewStrings("foo")
+	s.Assert(v.IsEmpty(), tc.IsFalse)
 	// Newly empty sets work too.
-	s.Remove("foo")
-	c.Assert(s.IsEmpty(), gc.Equals, true)
+	v.Remove("foo")
+	s.Assert(v.IsEmpty(), tc.IsTrue)
 }
 
-func (stringSetSuite) TestAdd(c *gc.C) {
-	s := set.NewStrings()
-	s.Add("foo")
-	s.Add("foo")
-	s.Add("bar")
-	AssertValues(c, s, "foo", "bar")
+func (s *stringSetSuite) TestAdd() {
+	v := set.NewStrings()
+	v.Add("foo")
+	v.Add("foo")
+	v.Add("bar")
+	s.AssertValues(v, "foo", "bar")
 }
 
-func (stringSetSuite) TestRemove(c *gc.C) {
-	s := set.NewStrings("foo", "bar")
-	s.Remove("foo")
-	AssertValues(c, s, "bar")
+func (s *stringSetSuite) TestRemove() {
+	v := set.NewStrings("foo", "bar")
+	v.Remove("foo")
+	s.AssertValues(v, "bar")
 }
 
-func (stringSetSuite) TestContains(c *gc.C) {
-	s := set.NewStrings("foo", "bar")
-	c.Assert(s.Contains("foo"), gc.Equals, true)
-	c.Assert(s.Contains("bar"), gc.Equals, true)
-	c.Assert(s.Contains("baz"), gc.Equals, false)
+func (s *stringSetSuite) TestContains() {
+	v := set.NewStrings("foo", "bar")
+	s.Assert(v.Contains("foo"), tc.IsTrue)
+	s.Assert(v.Contains("bar"), tc.IsTrue)
+	s.Assert(v.Contains("baz"), tc.IsFalse)
 }
 
-func (stringSetSuite) TestRemoveNonExistent(c *gc.C) {
-	s := set.NewStrings()
-	s.Remove("foo")
-	AssertValues(c, s)
+func (s *stringSetSuite) TestRemoveNonExistent() {
+	v := set.NewStrings()
+	v.Remove("foo")
+	s.AssertValues(v)
 }
 
-func (stringSetSuite) TestUnion(c *gc.C) {
+func (s *stringSetSuite) TestUnion() {
 	s1 := set.NewStrings("foo", "bar")
 	s2 := set.NewStrings("foo", "baz", "bang")
 	union1 := s1.Union(s2)
 	union2 := s2.Union(s1)
 
-	AssertValues(c, union1, "foo", "bar", "baz", "bang")
-	AssertValues(c, union2, "foo", "bar", "baz", "bang")
+	s.AssertValues(union1, "foo", "bar", "baz", "bang")
+	s.AssertValues(union2, "foo", "bar", "baz", "bang")
 }
 
-func (stringSetSuite) TestIntersection(c *gc.C) {
+func (s *stringSetSuite) TestIntersection() {
 	s1 := set.NewStrings("foo", "bar")
 	s2 := set.NewStrings("foo", "baz", "bang")
 	int1 := s1.Intersection(s2)
 	int2 := s2.Intersection(s1)
 
-	AssertValues(c, int1, "foo")
-	AssertValues(c, int2, "foo")
+	s.AssertValues(int1, "foo")
+	s.AssertValues(int2, "foo")
 }
 
-func (stringSetSuite) TestDifference(c *gc.C) {
+func (s *stringSetSuite) TestDifference() {
 	s1 := set.NewStrings("foo", "bar")
 	s2 := set.NewStrings("foo", "baz", "bang")
 	diff1 := s1.Difference(s2)
 	diff2 := s2.Difference(s1)
 
-	AssertValues(c, diff1, "bar")
-	AssertValues(c, diff2, "baz", "bang")
+	s.AssertValues(diff1, "bar")
+	s.AssertValues(diff2, "baz", "bang")
 }
 
-func (stringSetSuite) TestUninitializedPanics(c *gc.C) {
+func (s *stringSetSuite) TestUninitializedPanics() {
 	f := func() {
 		var s set.Strings
 		s.Add("foo")
 	}
-	c.Assert(f, gc.PanicMatches, "uninitalised set")
+	s.Assert(f, tc.PanicMatches, "uninitalised set")
 }

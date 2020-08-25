@@ -5,22 +5,23 @@ package set_test
 
 import (
 	"sort"
+	"testing"
 
-	"github.com/juju/testing"
-	jc "github.com/juju/testing/checkers"
-	gc "gopkg.in/check.v1"
+	tc "github.com/howbazaar/checkers"
 
 	"github.com/juju/collections/set"
 )
 
 type intSetSuite struct {
-	testing.IsolationSuite
+	tc.Test
 }
 
-var _ = gc.Suite(intSetSuite{})
+func TestIntSet(t *testing.T) {
+	tc.RunSuite(t, &intSetSuite{})
+}
 
 // Helper methods for the tests.
-func AssertIntValues(c *gc.C, s set.Ints, expected ...int) {
+func (i *intSetSuite) AssertIntValues(s set.Ints, expected ...int) {
 	values := s.Values()
 	// Expect an empty slice, not a nil slice for values.
 	if expected == nil {
@@ -28,110 +29,110 @@ func AssertIntValues(c *gc.C, s set.Ints, expected ...int) {
 	}
 	sort.Ints(expected)
 	sort.Ints(values)
-	c.Assert(values, gc.DeepEquals, expected)
-	c.Assert(s.Size(), gc.Equals, len(expected))
+	i.Assert(values, tc.DeepEquals, expected)
+	i.Assert(s.Size(), tc.Equals, len(expected))
 	// Check the sorted values too.
 	sorted := s.SortedValues()
-	c.Assert(sorted, gc.DeepEquals, expected)
+	i.Assert(sorted, tc.DeepEquals, expected)
 }
 
 // Actual tests start here.
 
-func (intSetSuite) TestEmpty(c *gc.C) {
+func (i *intSetSuite) TestEmpty() {
 	s := set.NewInts()
-	AssertIntValues(c, s)
+	i.AssertIntValues(s)
 }
 
-func (intSetSuite) TestInitialValues(c *gc.C) {
+func (i *intSetSuite) TestInitialValues() {
 	values := []int{1, 2, 3}
 	s := set.NewInts(values...)
-	AssertIntValues(c, s, values...)
+	i.AssertIntValues(s, values...)
 }
 
-func (intSetSuite) TestSize(c *gc.C) {
+func (i *intSetSuite) TestSize() {
 	// Empty sets are empty.
 	s := set.NewInts()
-	c.Assert(s.Size(), gc.Equals, 0)
+	i.Assert(s.Size(), tc.Equals, 0)
 
 	// Size returns number of unique values.
 	s = set.NewInts(1, 1, 2)
-	c.Assert(s.Size(), gc.Equals, 2)
+	i.Assert(s.Size(), tc.Equals, 2)
 }
 
-func (intSetSuite) TestIsEmpty(c *gc.C) {
+func (i *intSetSuite) TestIsEmpty() {
 	// Empty sets are empty.
 	s := set.NewInts()
-	c.Assert(s.IsEmpty(), jc.IsTrue)
+	i.Assert(s.IsEmpty(), tc.IsTrue)
 
 	// Non-empty sets are not empty.
 	s = set.NewInts(1)
-	c.Assert(s.IsEmpty(), jc.IsFalse)
+	i.Assert(s.IsEmpty(), tc.IsFalse)
 	// Newly empty sets work too.
 	s.Remove(1)
-	c.Assert(s.IsEmpty(), jc.IsTrue)
+	i.Assert(s.IsEmpty(), tc.IsTrue)
 }
 
-func (intSetSuite) TestAdd(c *gc.C) {
+func (i *intSetSuite) TestAdd() {
 	s := set.NewInts()
 	s.Add(1)
 	s.Add(1)
 	s.Add(2)
-	AssertIntValues(c, s, 1, 2)
+	i.AssertIntValues(s, 1, 2)
 }
 
-func (intSetSuite) TestRemove(c *gc.C) {
+func (i *intSetSuite) TestRemove() {
 	s := set.NewInts(1, 2)
 	s.Remove(1)
-	AssertIntValues(c, s, 2)
+	i.AssertIntValues(s, 2)
 }
 
-func (intSetSuite) TestContains(c *gc.C) {
+func (i *intSetSuite) TestContains() {
 	s := set.NewInts(1, 2)
-	c.Assert(s.Contains(1), jc.IsTrue)
-	c.Assert(s.Contains(2), jc.IsTrue)
-	c.Assert(s.Contains(3), jc.IsFalse)
+	i.Assert(s.Contains(1), tc.IsTrue)
+	i.Assert(s.Contains(2), tc.IsTrue)
+	i.Assert(s.Contains(3), tc.IsFalse)
 }
 
-func (intSetSuite) TestRemoveNonExistent(c *gc.C) {
+func (i *intSetSuite) TestRemoveNonExistent() {
 	s := set.NewInts()
 	s.Remove(1)
-	AssertIntValues(c, s)
+	i.AssertIntValues(s)
 }
 
-func (intSetSuite) TestUnion(c *gc.C) {
+func (i *intSetSuite) TestUnion() {
 	s1 := set.NewInts(1, 2)
 	s2 := set.NewInts(1, 3, 4)
 	union1 := s1.Union(s2)
 	union2 := s2.Union(s1)
 
-	AssertIntValues(c, union1, 1, 2, 3, 4)
-	AssertIntValues(c, union2, 1, 2, 3, 4)
+	i.AssertIntValues(union1, 1, 2, 3, 4)
+	i.AssertIntValues(union2, 1, 2, 3, 4)
 }
 
-func (intSetSuite) TestIntersection(c *gc.C) {
+func (i *intSetSuite) TestIntersection() {
 	s1 := set.NewInts(1, 2)
 	s2 := set.NewInts(1, 3, 4)
 	int1 := s1.Intersection(s2)
 	int2 := s2.Intersection(s1)
 
-	AssertIntValues(c, int1, 1)
-	AssertIntValues(c, int2, 1)
+	i.AssertIntValues(int1, 1)
+	i.AssertIntValues(int2, 1)
 }
 
-func (intSetSuite) TestDifference(c *gc.C) {
+func (i *intSetSuite) TestDifference() {
 	s1 := set.NewInts(1, 2)
 	s2 := set.NewInts(1, 3, 4)
 	diff1 := s1.Difference(s2)
 	diff2 := s2.Difference(s1)
 
-	AssertIntValues(c, diff1, 2)
-	AssertIntValues(c, diff2, 3, 4)
+	i.AssertIntValues(diff1, 2)
+	i.AssertIntValues(diff2, 3, 4)
 }
 
-func (intSetSuite) TestUninitializedPanics(c *gc.C) {
+func (i *intSetSuite) TestUninitializedPanics() {
 	f := func() {
 		var s set.Ints
 		s.Add(1)
 	}
-	c.Assert(f, gc.PanicMatches, "uninitalised set")
+	i.Assert(f, tc.PanicMatches, "uninitalised set")
 }
